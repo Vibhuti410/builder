@@ -6,6 +6,7 @@ import userFonts from "@/data/userFonts";
 import { UserFont } from "@/types/Builder/UserFont";
 import blockController from "@/utils/blockController";
 import { setFont as _setFont, fontList, getFontWeightOptions } from "@/utils/fontManager";
+import { selectAll } from "@codemirror/commands";
 
 const setFont = (font: string) => {
 	_setFont(font, null).then(() => {
@@ -33,6 +34,59 @@ const typographySectionProperties = [
 		condition: () =>
 			(blockController.isText() || blockController.isButton()) && !blockController.multipleBlocksSelected(),
 	},
+	{
+	component: PropertyControl,
+	getProps: () => {
+		return {
+			label: "Style",
+			styleProperty: "textStylePreset",
+			type: "select",
+			options: [
+				{ value: null, 
+				  label: "None"
+				},
+				{ value: "h1",
+				  label: "Heading 1" 
+				},
+				{ value: "h2", 
+				  label: "Heading 2" 
+				},
+				{ value: "h3", 
+				  label: "Heading 3" 
+				},
+				{ value: "h4", 
+				  label: "Heading 4" 
+				},
+				{ value: "p", 
+				  label: "Paragraph" 
+				},
+				{ value: "caption", 
+				  label: "Caption" 
+				},
+			],
+			setModelValue: (val: string) => {
+				const PRESETS: Record<string, { fontSize: string; fontWeight: string }> = {
+					h1: { fontSize: "40px", fontWeight: "700" },
+					h2: { fontSize: "32px", fontWeight: "600" },
+					h3: { fontSize: "24px", fontWeight: "600" },
+					h4: { fontSize: "18px", fontWeight: "500" },
+					p: { fontSize: "16px", fontWeight: "400" },
+					caption: { fontSize: "12px", fontWeight: "400" },
+				};
+
+				blockController.setStyle("textStylePreset", val);
+
+				if (!val || !PRESETS[val]) return;
+
+				const preset = PRESETS[val];
+				blockController.setFontFamily("Poppins");
+				blockController.setStyle("fontSize", preset.fontSize);
+				blockController.setStyle("fontWeight", preset.fontWeight);
+			},
+		};
+	},
+	condition: () => blockController.isText(),
+},
 	{
 		component: PropertyControl,
 		getProps: () => {
